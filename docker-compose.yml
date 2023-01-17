@@ -1,0 +1,40 @@
+version: "2.2"
+services:
+  book-service:
+    environment:
+      - SERVER_PORT=8081
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresdb:5432/postgres
+    build: book-service/.
+    container_name: book-service
+    hostname: book-service
+    ports:
+      - "8081:8081"
+  search-service:
+    environment:
+      - SERVER_PORT=8082
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresdb:5432/postgres
+    build: search-service/.
+    container_name: search-service
+    hostname: search-service
+    ports:
+      - "8082:8082"
+  py-search-service:
+    build: py-search-service/.
+    container_name: py-search-service
+    hostname: py-search-service
+    ports:
+      - "8083:8083"
+  postgresdb:
+    image: 'postgres:13.1-alpine'
+    container_name: postgresdb
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./py-search-service/archive:/archive
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  ui-service:
+    build: book-search-system/.
+    container_name: ui-service
+    ports:
+      - "3000:3000"
